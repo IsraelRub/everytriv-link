@@ -3,29 +3,57 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>EveryTriv — demo redirect</title>
+	<title>EveryTriv — demo</title>
 	<!--
-		Replace REPLACE_ME_FRONTEND_TUNNEL everywhere below with your public frontend URL
-		(same as CLIENT_URL / tunnel to Docker client port 3000). No trailing slash required.
-		Or run: scripts/deployment/sync-demo-redirect.ps1 -EverytrivLinkRepo <path-to-this-repo-clone>
+		Target URL is read from frontend-target.json (HTTPS only).
+		Default points at the source repo until you set a public tunnel URL for the SPA (same as CLIENT_URL).
+		Update with: scripts/deployment/sync-demo-redirect.ps1 -EverytrivLinkRepo <path>
 	-->
-	<meta http-equiv="refresh" content="0;url=REPLACE_ME_FRONTEND_TUNNEL" />
-	<script>
-		(function () {
-			var target = 'REPLACE_ME_FRONTEND_TUNNEL';
-			if (target.indexOf('REPLACE_ME') !== -1) {
-				document.body.innerHTML =
-					'<p style="font-family:system-ui;padding:1rem">Update REPLACE_ME_FRONTEND_TUNNEL in index.html (see README).</p>';
-				return;
-			}
-			location.replace(target);
-		})();
-	</script>
+	<style>
+		body { font-family: system-ui, sans-serif; padding: 1rem; max-width: 40rem; line-height: 1.5; }
+		code { background: #f4f4f4; padding: 0.1rem 0.35rem; border-radius: 4px; }
+		#loading { margin: 0; }
+		#panel { display: none; }
+	</style>
 </head>
 <body>
-	<p style="font-family: system-ui, sans-serif; padding: 1rem">
-		Redirecting… If nothing happens,
-		<a href="REPLACE_ME_FRONTEND_TUNNEL">open the demo</a>.
-	</p>
+	<p id="loading">Loading demo link…</p>
+	<div id="panel" role="status">
+		<p><strong>No HTTPS demo URL configured.</strong></p>
+		<p>
+			Set <code>frontendUrl</code> in <code>frontend-target.json</code> to your public SPA URL (tunnel to Docker
+			port 3000), commit, and push to <code>main</code>. Or run
+			<code>sync-demo-redirect.ps1</code> from the EveryTriv monorepo.
+		</p>
+		<p>
+			<a href="https://github.com/IsraelRub/EveryTriv">EveryTriv — source</a>
+			·
+			<a href="https://github.com/IsraelRub/everytriv-link">everytriv-link</a>
+		</p>
+	</div>
+	<script>
+		(function () {
+			var loading = document.getElementById('loading');
+			var panel = document.getElementById('panel');
+			function fail() {
+				if (loading) loading.style.display = 'none';
+				if (panel) panel.style.display = 'block';
+			}
+			fetch('./frontend-target.json', { cache: 'no-store' })
+				.then(function (r) {
+					if (!r.ok) throw new Error('bad status');
+					return r.json();
+				})
+				.then(function (cfg) {
+					var u = cfg && typeof cfg.frontendUrl === 'string' ? cfg.frontendUrl.trim() : '';
+					if (u.indexOf('https://') !== 0) {
+						fail();
+						return;
+					}
+					location.replace(u);
+				})
+				.catch(fail);
+		})();
+	</script>
 </body>
 </html>
