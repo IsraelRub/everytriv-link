@@ -8,8 +8,8 @@ Keep EveryTriv secrets out of this repo.
 
 | File | Role |
 |------|------|
-| `index.html` | Loads `frontend-target.json` and redirects (HTTPS URLs only). |
-| `frontend-target.json` | `{ "frontendUrl": "https://..." }` — your public SPA URL (`CLIENT_URL`). |
+| `index.html` | Loads `frontend-target.json` and redirects (HTTPS, or `http://localhost` / `127.0.0.1` only). |
+| `frontend-target.json` | `{ "frontendUrl": "…" }` — same as `CLIENT_URL` (HTTPS tunnel for public; `http://localhost:3000` for this PC only). |
 
 ## One-time setup
 

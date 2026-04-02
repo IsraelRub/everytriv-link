@@ -3,11 +3,11 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>EveryTriv — demo</title>
+	<title>EveryTriv — link</title>
 	<!--
-		Target URL is read from frontend-target.json (HTTPS only).
-		Default points at the source repo until you set a public tunnel URL for the SPA (same as CLIENT_URL).
-		Update with: scripts/deployment/sync-demo-redirect.ps1 -EverytrivLinkRepo <path>
+		Target URL is read from frontend-target.json.
+		Allowed: https://* (e.g. tunnel), or http://localhost / http://127.0.0.1 only (same machine + Docker).
+		Align with root .env CLIENT_URL; public demo needs HTTPS tunnel URL + push to main.
 	-->
 	<style>
 		body { font-family: system-ui, sans-serif; padding: 1rem; max-width: 40rem; line-height: 1.5; }
@@ -19,10 +19,10 @@
 <body>
 	<p id="loading">Loading demo link…</p>
 	<div id="panel" role="status">
-		<p><strong>No HTTPS demo URL configured.</strong></p>
+		<p><strong>No valid demo URL in <code>frontend-target.json</code>.</strong></p>
 		<p>
-			Set <code>frontendUrl</code> in <code>frontend-target.json</code> to your public SPA URL (tunnel to Docker
-			port 3000), commit, and push to <code>main</code>. Or run
+			Use <code>https://…</code> for a public tunnel (Docker port 3000), or <code>http://localhost:3000</code> /
+			<code>http://127.0.0.1:3000</code> for this machine only. Then commit and push to <code>main</code>, or run
 			<code>sync-demo-redirect.ps1</code> from the EveryTriv monorepo.
 		</p>
 		<p>
@@ -33,6 +33,17 @@
 	</div>
 	<script>
 		(function () {
+			function isAllowedFrontendUrl(u) {
+				if (u.indexOf('https://') === 0) return true;
+				try {
+					var parsed = new URL(u);
+					if (parsed.protocol !== 'http:') return false;
+					var h = parsed.hostname;
+					return h === 'localhost' || h === '127.0.0.1' || h === '[::1]';
+				} catch (e) {
+					return false;
+				}
+			}
 			var loading = document.getElementById('loading');
 			var panel = document.getElementById('panel');
 			function fail() {
@@ -46,7 +57,7 @@
 				})
 				.then(function (cfg) {
 					var u = cfg && typeof cfg.frontendUrl === 'string' ? cfg.frontendUrl.trim() : '';
-					if (u.indexOf('https://') !== 0) {
+					if (!isAllowedFrontendUrl(u)) {
 						fail();
 						return;
 					}
