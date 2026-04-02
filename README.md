@@ -1,6 +1,6 @@
 # everytriv-link
 
-Static **GitHub Pages** site that sends visitors to your **public frontend URL** (read from `frontend-target.json`). Default target is the [EveryTriv](https://github.com/IsraelRub/EveryTriv) source repo until you set a **tunnel URL** for the Docker client (port 3000).
+Static **GitHub Pages** site: redirects to your **public HTTPS** tunnel (Docker client port **3000**). The tunnel URL lives **only** in `index.html` (`FRONTEND_DEMO_URL`). Local play: open `http://localhost:3000` on the machine that runs Docker — not this site.
 
 Keep EveryTriv secrets out of this repo.
 
@@ -8,31 +8,33 @@ Keep EveryTriv secrets out of this repo.
 
 | File | Role |
 |------|------|
-| `index.html` | Loads `frontend-target.json` and redirects (HTTPS, or `http://localhost` / `127.0.0.1` only). |
-| `frontend-target.json` | `{ "frontendUrl": "…" }` — same as `CLIENT_URL` (HTTPS tunnel for public; `http://localhost:3000` for this PC only). |
+| `index.html` | Sets `var FRONTEND_DEMO_URL = "https://…";` then redirects (public HTTPS only; empty = show setup text). |
 
 ## One-time setup
 
-1. Create a **public** GitHub repository named `everytriv-link` (or use [IsraelRub/everytriv-link](https://github.com/IsraelRub/everytriv-link)).
-2. Put `index.html` and `frontend-target.json` in the repo root.
-3. **Pages**: Repository → **Settings** → **Pages** → **Deploy from a branch** → `main`, folder **`/` (root)**.
-4. Stable link: **https://israelrub.github.io/everytriv-link/**
+1. Public GitHub repository (e.g. [IsraelRub/everytriv-link](https://github.com/IsraelRub/everytriv-link)).
+2. Put `index.html` in the repo root.
+3. **Pages**: Settings → **Pages** → branch `main`, folder **`/`**.
+4. Stable entry: **https://israelrub.github.io/everytriv-link/** (until `FRONTEND_DEMO_URL` is set, visitors see instructions).
 
-## Playable demo (tunnel)
+## Playable demo
 
-1. Run EveryTriv with Docker; expose **3000** (SPA) and **3002** (API) via two tunnels.
-2. Set root `.env` in EveryTriv: `CLIENT_URL`, `SERVER_URL`, `VITE_API_BASE_URL`; rebuild client if needed.
-3. Set `frontendUrl` in `frontend-target.json` to the **HTTPS** frontend tunnel URL; commit and push.
+1. EveryTriv: `docker compose up`.
+2. HTTPS tunnel to `http://127.0.0.1:3000`.
+3. Monorepo `.env`: `SERVER_URL` + `CLIENT_URL` = tunnel; `VITE_API_BASE_URL=USE_ORIGIN_API_PREFIX`; rebuild client if needed.
+4. In this repo: set `FRONTEND_DEMO_URL` in `index.html` to the same `https://…` and push — or from monorepo:
 
-Or from the monorepo:
+`scripts/deployment/sync-demo-redirect.ps1 -FrontendTunnelUrl 'https://…' -EverytrivLinkRepoPath "<clone>" -GitPush`
 
-`scripts/deployment/sync-demo-redirect.ps1 -ApiTunnelUrl ... -FrontendTunnelUrl ... -EverytrivLinkRepoPath "<path>" -GitPush`
+**Two tunnels (legacy):** `-ApiTunnelUrl` + `-FrontendTunnelUrl`; set `VITE_API_BASE_URL` to the API tunnel in `.env`.
 
 ## Google OAuth (if used)
 
-- **Authorized JavaScript origins**: `CLIENT_URL`
-- **Authorized redirect URIs**: `{SERVER_URL}/auth/google/callback`
+- **JavaScript origins** and **redirect** `…/auth/google/callback`: same `https://` host as the tunnel (single-tunnel).
 
 ## Validation
 
-From EveryTriv: `scripts/deployment/validate-demo-redirect.ps1` with your Pages URL and expected `CLIENT_URL`.
+From EveryTriv monorepo:
+
+- `scripts/deployment/verify-demo-remote.ps1 -TunnelBaseUrl 'https://…' -PagesUrl 'https://…github.io/everytriv-link'`
+- `scripts/deployment/validate-demo-redirect.ps1`
