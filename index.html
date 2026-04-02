@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>EveryTriv — demo redirect</title>
+	<!--
+		Replace REPLACE_ME_FRONTEND_TUNNEL everywhere below with your public frontend URL
+		(same as CLIENT_URL / tunnel to Docker client port 3000). No trailing slash required.
+		Or run: scripts/deployment/sync-demo-redirect.ps1 -EverytrivLinkRepo <path-to-this-repo-clone>
+	-->
+	<meta http-equiv="refresh" content="0;url=REPLACE_ME_FRONTEND_TUNNEL" />
+	<script>
+		(function () {
+			var target = 'REPLACE_ME_FRONTEND_TUNNEL';
+			if (target.indexOf('REPLACE_ME') !== -1) {
+				document.body.innerHTML =
+					'<p style="font-family:system-ui;padding:1rem">Update REPLACE_ME_FRONTEND_TUNNEL in index.html (see README).</p>';
+				return;
+			}
+			location.replace(target);
+		})();
+	</script>
+</head>
+<body>
+	<p style="font-family: system-ui, sans-serif; padding: 1rem">
+		Redirecting… If nothing happens,
+		<a href="REPLACE_ME_FRONTEND_TUNNEL">open the demo</a>.
+	</p>
+</body>
+</html>
