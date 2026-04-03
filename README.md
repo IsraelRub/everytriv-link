@@ -19,7 +19,8 @@ Keep EveryTriv secrets out of this repo.
 
 ## Full flow (tunnel install, `.env`, rebuild, OAuth, checks)
 
-See the EveryTriv monorepo **`README.md`** → section **«דמו ציבורי — טונל אחד (בלי סקריפטים)»** under Docker.
+EveryTriv monorepo **`README.md`** → **«דמו ציבורי — טונל אחד»** (Docker).  
+Technical reference for **cloudflared** (CLI + Docker Compose profile): **`docs/deployment/CLOUDFLARED.md`** in that repo.
 
 ## Google OAuth (if used)
 
